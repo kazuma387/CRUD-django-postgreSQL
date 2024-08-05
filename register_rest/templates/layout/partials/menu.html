@@ -11,6 +11,25 @@
             <li class="link"><a href="{% url "index" %}">Inicio</a></li>
             <li class="link"><a href="{% url "representante" %}">Representantes</a></li>
             <li class="link"><a href="{% url "alumno" %}">Alumnos</a></li>
+            
+            {% if request.user.is_authenticated %}
+            <li class="link">
+                <form class="form_navbar" method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="button_form" type="submit">salir</button>
+                </form>
+            </li>
+
+                {% else %}
+                    <li class="link">
+                        <a href="{% url "login" %}">Ingresar</a>
+                    </li>
+
+                    <li class="link">
+                        <a href="{% url "register" %}">Registrarse</a>
+                    </li>
+
+                {% endif %}
         </ul>
 
         <div class="toggle">

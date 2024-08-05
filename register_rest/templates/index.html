@@ -9,6 +9,12 @@
 
 {% block 'content' %}
     <h1>U.E.N Carmen Palomares de Romero II</h1>
+    
+    {% if request.user.is_authenticated %}
+    <h4>
+        {{ user.username | upper }}, te doy la bienvenida
+    </h4>
+{% endif %}
 
     <div class="container-cards">
         <div class="card">

@@ -1,0 +1,29 @@
+{% extends "layout/base.html" %}
+
+{% block 'title' %} Login {% endblock  %}
+
+
+{% block 'styles' %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static "css/form.css" %}">
+{% endblock  %}
+
+{% block 'content' %}
+    <div class="container">
+        <h3>LOGIN</h3>
+
+        {# el method='PUT' se usa para actualizar pero aqui usamos el post #}
+        <form action="" method='POST'>
+            {% csrf_token %}
+            <label for="user">Usuario</label>
+            <input type="text" name="username" id="user">
+            <label for="pass">Contraseña</label>
+            <input type="password" name="password" id="pass">
+            <div class="order">
+                <a href={% url 'index' %} >Inicio</a>
+                <a href={% url 'register' %} >Registrarse</a>
+                <button class="submit" type="submit">Iniciar Sesión</button>
+            </div>
+        </form>
+    </div>
+{% endblock  %}

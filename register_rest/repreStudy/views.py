@@ -1,10 +1,39 @@
 from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from django.contrib.auth import authenticate, login
 from .models import Representante, Alumno
-from .forms import RepresentanteForm, AlumnoForm
+from .forms import RepresentanteForm, AlumnoForm, CustomUserCreationForm
 from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+# para el login
+def home(request):
+    return render(request, './index.html')
+
+# para el registro de usuario
+def register(request):
+    data = {
+        'form': CustomUserCreationForm()
+    }
+
+    if request.method == 'POST':
+        user_creation_form = CustomUserCreationForm(data=request.POST)
+
+        if user_creation_form.is_valid():
+            user_creation_form.save()
+
+            user = authenticate(username=user_creation_form.cleaned_data['username'], password=user_creation_form.cleaned_data['password1'])
+            login(request, user)
+            return redirect('index')
+        else:
+            data['form'] = user_creation_form
+
+    return render(request, 'registration/register.html', data)
+
+
+@login_required
 def representante_index(request, letter = None):
     # para buscar por la primera letra
     if letter != None:
@@ -25,7 +54,7 @@ def representante_index(request, letter = None):
     no_results_message = "No se encontraron coincidencias." if not representantes.exists() else None
 
     # Paginación
-    paginator = Paginator(representantes, 8)  # Mostrar 8 representantes por página
+    paginator = Paginator(representantes, 7)  # Mostrar 8 representantes por página
     page_number = request.GET.get('page')  # Obtener el número de página de la solicitud
     try:
         page_obj = paginator.get_page(page_number)  # Obtener la página solicitada
@@ -43,6 +72,7 @@ def representante_index(request, letter = None):
 
 
 # ver info representante
+@login_required
 def representante_view(request, id):
     representante = Representante.objects.get(id=id)
     alumnos = Alumno.objects.filter(representante=representante)
@@ -53,6 +83,7 @@ def representante_view(request, id):
     return render(request, 'representante/detail.html', context)
 
 # para editar representante
+@login_required
 def representante_edit(request, id):
     contact = Representante.objects.get(id=id)
 
@@ -78,6 +109,7 @@ def representante_edit(request, id):
         return render(request, 'representante/edit.html', context)
 
 # para añadir un representante nuevo
+@login_required
 def representante_create(request):
     # para darle al boton añadir y crear el formulario
     if request.method == 'GET':
@@ -97,10 +129,12 @@ def representante_create(request):
     
 
 # para eliminar un representante
+@login_required
 def representante_delete(request, id):
     return redirect('representante_confirm_delete', id=id)    
 
 # para confirmar si desea eliminarlo
+@login_required
 def representante_confirm_delete(request, id):
     representante = get_object_or_404(Representante, id=id)
     if request.method == 'POST':
@@ -115,7 +149,7 @@ def representante_confirm_delete(request, id):
 
 ################################################################################################
 
-
+@login_required
 def alumno_index(request, letter=None):
     if letter is not None:
         search_query = None
@@ -148,6 +182,8 @@ def alumno_index(request, letter=None):
     }
     return render(request, 'alumno/index.html', context)
 
+
+@login_required
 def alumno_view(request, id):
     alumno = Alumno.objects.get(id=id)
     context = {
@@ -177,6 +213,8 @@ def alumno_edit(request, id):
         messages.success(request, "alumno actualizado.")
         return render(request, 'alumno/edit.html', context)
 
+
+@login_required
 def alumno_create(request):
     if request.method == 'GET':
         form = AlumnoForm()
@@ -192,9 +230,13 @@ def alumno_create(request):
         messages.success(request, "alumno añadido.")
         return redirect('alumno_create')
 
+
+@login_required
 def alumno_delete(request, id):
     return redirect('alumno_confirm_delete', id=id)
 
+
+@login_required
 def alumno_confirm_delete(request, id):
     alumno = get_object_or_404(Alumno, id=id)
     if request.method == 'POST':

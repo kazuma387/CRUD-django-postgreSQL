@@ -1,3 +1,6 @@
+h3 {
+    margin: 20px 0;
+}
 
 form {
     display: flex;
@@ -18,6 +21,7 @@ label {
 
 input[type="text"],
 input[type="email"],
+input[type="password"],
 textarea {
     width: 100%;
     padding: 5px;
@@ -51,6 +55,70 @@ input[type="submit"] {
 
 input[type="submit"]:hover {
     background-color: #45a049;
+}
+
+/* formularios de login y registrarse */
+.order {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.order a {
+    font-size: 80%;
+    padding: 5px;
+    color: var(--color-primary);
+    text-align: center;
+    text-decoration: none;
+}
+
+.order a:hover {
+    color: var(--color-btn-edit);
+}
+
+/* boton formulario de login y registro */
+.submit {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    min-width: 111px;
+}
+
+.submit:hover {
+    background-color: var(--color-tertiary);
+}
+
+.helptext {
+    display: none;
+}
+
+/* formulario de logout */
+.form_navbar {
+    background-color: var(--color-primary);
+    padding: 17px 0;
+    border-radius: 0;
+    box-shadow: none;
+    width: 50%; 
+    min-width: 70px;
+}
+
+.button_form {
+    color: var(--color-text);
+    background-color: inherit;
+    border: none;
+    margin: 0 25px;
+    font-size: 20px;
+    font-weight: bold;
+    transition: .3s;
+    cursor: pointer;
+}
+
+.button_form:hover {
+    color: var(--color-text-2);
+    background-color: var(--color-primary);
 }
 
 /* del mensaje */

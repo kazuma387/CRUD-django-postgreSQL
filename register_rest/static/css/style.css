@@ -84,9 +84,14 @@ nav {
     transform: rotate(180deg);
 }
 
-h1 {
+h1,h2 {
     font-size: 24px;
     margin-bottom: 10px;
+    text-align: center
+}
+
+h4 {
+    font-size: 16px;
     text-align: center
 }
 
@@ -101,7 +106,7 @@ h1 {
     max-width: 1000px;
 }
 
-@media screen and (max-width: 768px){
+@media screen and (max-width: 796px){
     .container-navbar {
         justify-content: space-between;
     }
@@ -115,7 +120,7 @@ h1 {
         display: flex;
         flex-direction: column;
         background: var(--color-primary);
-        text-align: center;
+        align-items: center;
         overflow: hidden;
         width: 100%;
         z-index: 999;
@@ -388,4 +393,26 @@ th {
     border-radius: 5px;
     font-weight: bold;
     list-style-type: none;
+}
+
+/* formulario de logout */
+.form_navbar {
+    padding: 0;
+    width: 50%; 
+}
+
+.button_form {
+    color: var(--color-text);
+    background-color: inherit;
+    border: none;
+    margin: 0 25px;
+    font-size: 20px;
+    font-weight: bold;
+    transition: .3s;
+    cursor: pointer;
+}
+
+.button_form:hover {
+    color: var(--color-text-2);
+    background-color: var(--color-primary);
 }

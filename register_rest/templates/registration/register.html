@@ -1,0 +1,25 @@
+{% extends "layout/base.html" %}
+
+{% block 'title' %} Registrarse {% endblock  %}
+
+
+{% block 'styles' %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static "css/form.css" %}">
+{% endblock  %}
+
+{% block 'content' %}
+    <div class="container">
+        <h3>REGISTRO DE USUARIO</h3>
+
+        {# el method='PUT' se usa para actualizar pero aqui usamos el post #}
+        <form action="" method='POST'>
+            {% csrf_token %}
+            {{ form }}
+            <div class="order">
+                <a href={% url 'login' %} >Login</a>
+                <button class="submit" type="submit">Registrarse</button>
+            </div>
+        </form>
+    </div>
+{% endblock  %}
