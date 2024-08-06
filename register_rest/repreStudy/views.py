@@ -1,14 +1,34 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 from .models import Representante, Alumno
 from .forms import RepresentanteForm, AlumnoForm, CustomUserCreationForm
 from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.models import Group
+
 
 # para el login
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            # Aquí va tu lógica de autenticación, por ejemplo:
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user:
+                # Lógica después de autenticar correctamente
+                return redirect('index')
+
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'login.html', {'form': form})
+
 def home(request):
     return render(request, './index.html')
 
@@ -22,7 +42,11 @@ def register(request):
         user_creation_form = CustomUserCreationForm(data=request.POST)
 
         if user_creation_form.is_valid():
-            user_creation_form.save()
+            user = user_creation_form.save()  
+
+            # Assign the user to the desired group
+            group = Group.objects.get(name='observador') 
+            user.groups.add(group)  
 
             user = authenticate(username=user_creation_form.cleaned_data['username'], password=user_creation_form.cleaned_data['password1'])
             login(request, user)
@@ -82,7 +106,9 @@ def representante_view(request, id):
     }
     return render(request, 'representante/detail.html', context)
 
+
 # para editar representante
+@permission_required('repreStudy.change_representante')
 @login_required
 def representante_edit(request, id):
     contact = Representante.objects.get(id=id)
@@ -108,7 +134,9 @@ def representante_edit(request, id):
         messages.success(request, "Representante actualizado.")
         return render(request, 'representante/edit.html', context)
 
+
 # para añadir un representante nuevo
+@permission_required('repreStudy.change_representante')
 @login_required
 def representante_create(request):
     # para darle al boton añadir y crear el formulario
@@ -129,11 +157,14 @@ def representante_create(request):
     
 
 # para eliminar un representante
+@permission_required('repreStudy.change_representante')
 @login_required
 def representante_delete(request, id):
     return redirect('representante_confirm_delete', id=id)    
 
+
 # para confirmar si desea eliminarlo
+@permission_required('repreStudy.change_representante')
 @login_required
 def representante_confirm_delete(request, id):
     representante = get_object_or_404(Representante, id=id)
@@ -191,6 +222,9 @@ def alumno_view(request, id):
     }
     return render(request, 'alumno/detail.html', context)
 
+
+@permission_required('repreStudy.change_alumno')
+@login_required
 def alumno_edit(request, id):
     alumno = Alumno.objects.get(id=id)
 
@@ -214,6 +248,7 @@ def alumno_edit(request, id):
         return render(request, 'alumno/edit.html', context)
 
 
+@permission_required('repreStudy.change_alumno')
 @login_required
 def alumno_create(request):
     if request.method == 'GET':
@@ -231,11 +266,13 @@ def alumno_create(request):
         return redirect('alumno_create')
 
 
+@permission_required('repreStudy.change_alumno')
 @login_required
 def alumno_delete(request, id):
     return redirect('alumno_confirm_delete', id=id)
 
 
+@permission_required('repreStudy.change_alumno')
 @login_required
 def alumno_confirm_delete(request, id):
     alumno = get_object_or_404(Alumno, id=id)

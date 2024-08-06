@@ -133,4 +133,16 @@ input[type="submit"]:hover {
     list-style-type: none;
 }
 
+/* mensaje de error del login */
+.errorlist.nonfield {
+    background: var(--color-btn-delete);
+    color: var(--color-text);
+    padding: 15px;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    list-style-type: none;
+}
+
 
