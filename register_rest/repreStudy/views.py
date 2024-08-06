@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Representante, Alumno
@@ -16,7 +15,7 @@ def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
-            # Aquí va tu lógica de autenticación, por ejemplo:
+            # lógica de autenticación
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
@@ -78,7 +77,7 @@ def representante_index(request, letter = None):
     no_results_message = "No se encontraron coincidencias." if not representantes.exists() else None
 
     # Paginación
-    paginator = Paginator(representantes, 7)  # Mostrar 8 representantes por página
+    paginator = Paginator(representantes, 7)  # Mostrar 7 representantes por página
     page_number = request.GET.get('page')  # Obtener el número de página de la solicitud
     try:
         page_obj = paginator.get_page(page_number)  # Obtener la página solicitada
@@ -136,7 +135,7 @@ def representante_edit(request, id):
 
 
 # para añadir un representante nuevo
-@permission_required('repreStudy.change_representante')
+@permission_required('repreStudy.add_representante')
 @login_required
 def representante_create(request):
     # para darle al boton añadir y crear el formulario
@@ -157,14 +156,14 @@ def representante_create(request):
     
 
 # para eliminar un representante
-@permission_required('repreStudy.change_representante')
+@permission_required('repreStudy.delete_representante')
 @login_required
 def representante_delete(request, id):
     return redirect('representante_confirm_delete', id=id)    
 
 
 # para confirmar si desea eliminarlo
-@permission_required('repreStudy.change_representante')
+@permission_required('repreStudy.delete_representante')
 @login_required
 def representante_confirm_delete(request, id):
     representante = get_object_or_404(Representante, id=id)
@@ -248,7 +247,7 @@ def alumno_edit(request, id):
         return render(request, 'alumno/edit.html', context)
 
 
-@permission_required('repreStudy.change_alumno')
+@permission_required('repreStudy.add_alumno')
 @login_required
 def alumno_create(request):
     if request.method == 'GET':
@@ -266,13 +265,13 @@ def alumno_create(request):
         return redirect('alumno_create')
 
 
-@permission_required('repreStudy.change_alumno')
+@permission_required('repreStudy.delete_alumno')
 @login_required
 def alumno_delete(request, id):
     return redirect('alumno_confirm_delete', id=id)
 
 
-@permission_required('repreStudy.change_alumno')
+@permission_required('repreStudy.delete_alumno')
 @login_required
 def alumno_confirm_delete(request, id):
     alumno = get_object_or_404(Alumno, id=id)

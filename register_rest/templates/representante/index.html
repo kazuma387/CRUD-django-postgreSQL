@@ -14,7 +14,11 @@
 
         <span class='btn-aux'>
             <a href="{% url "representante" %}" class='btn btn-detail'>Ver todos</a>
-            <a href="{% url "representante_create" %}" class='btn btn-edit'>Añadir</a>
+            {% if perms.repreStudy.add_representante %}
+                <a href="{% url "representante_create" %}" class='btn btn-edit'>Añadir</a>
+            {% else %}
+                <a href="javascript:void(0);" class='btn btn-edit btn-disabled' title="No tienes permiso para añadir">Añadir</a>
+            {% endif %}
         </span>
 
         {% include "representante/partials/lista_representante.html" %}

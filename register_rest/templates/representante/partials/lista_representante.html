@@ -4,8 +4,18 @@
         {{representante.nombres}}
         <span>
             <a href="{% url "representante_view" id=representante.id  %}" class='btn btn-detail'>Ver</a>
-            <a href="{% url "representante_edit" id=representante.id  %}" class='btn btn-edit'>Editar</a>
-            <a href="{% url "representante_delete" id=representante.id  %}" class='btn btn-delete'>Borrar</a>
+
+            {% if perms.repreStudy.change_representante %}
+                <a href="{% url "representante_edit" id=representante.id  %}" class='btn btn-edit'>Editar</a>
+            {% else %}
+                <a href="javascript:void(0);" class='btn btn-edit btn-disabled' title="No tienes permiso para editar">Editar</a>
+            {% endif %}
+
+            {% if perms.repreStudy.delete_representante %}
+                <a href="{% url "representante_delete" id=representante.id  %}" class='btn btn-delete'>Borrar</a>
+            {% else %}
+                <a href="javascript:void(0);" class='btn btn-delete btn-disabled' title="No tienes permiso para borrar">Borrar</a>
+            {% endif %}
         </span>
     </li>
     {% endfor %}

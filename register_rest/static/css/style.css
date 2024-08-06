@@ -173,6 +173,13 @@ h4 {
     border-radius: 5px;
 }
 
+/* deshabilitar btn */
+.btn-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .btn-detail {
     padding: 5px 15px;
     background-color: var(--color-btn-detail);
