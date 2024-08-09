@@ -1,13 +1,12 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Representante, Alumno
-from .forms import RepresentanteForm, AlumnoForm, CustomUserCreationForm
+from .forms import RepresentanteForm, AlumnoForm
 from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib.auth.models import Group
 
 
 # para el login
@@ -31,30 +30,7 @@ def login_view(request):
 def home(request):
     return render(request, './index.html')
 
-# para el registro de usuario
-def register(request):
-    data = {
-        'form': CustomUserCreationForm()
-    }
-
-    if request.method == 'POST':
-        user_creation_form = CustomUserCreationForm(data=request.POST)
-
-        if user_creation_form.is_valid():
-            user = user_creation_form.save()  
-
-            # Assign the user to the desired group
-            group = Group.objects.get(name='observador') 
-            user.groups.add(group)  
-
-            user = authenticate(username=user_creation_form.cleaned_data['username'], password=user_creation_form.cleaned_data['password1'])
-            login(request, user)
-            return redirect('index')
-        else:
-            data['form'] = user_creation_form
-
-    return render(request, 'registration/register.html', data)
-
+##############################################################################################################################################
 
 @login_required
 def representante_index(request, letter = None):
