@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Representante, Alumno
+from .models import Representante, Alumno, RegistroEliminado
 
 # para administrar mejor los modelos
 class RepresentanteAdmin(admin.ModelAdmin):
@@ -26,3 +26,17 @@ class AlumnoAdmin(admin.ModelAdmin):
     date_hierarchy = 'fecha_de_nacimiento'
 
 admin.site.register(Alumno, AlumnoAdmin)
+
+
+# para administrar mejor los modelos
+class RegistroEliminadoAdmin(admin.ModelAdmin):
+    # para que salga todo esto en el panel
+    list_display = ('tipo', 'datos', 'eliminado_por', 'fecha_eliminacion')
+    # para agregar un buscador
+    search_fields = ('tipo', 'eliminado_por', 'fecha_eliminacion')
+    # para añadir filtros
+    list_filter = ('tipo', 'eliminado_por', 'fecha_eliminacion')
+    # gerarquia de fechas
+    date_hierarchy = 'fecha_eliminacion'
+
+admin.site.register(RegistroEliminado, RegistroEliminadoAdmin)

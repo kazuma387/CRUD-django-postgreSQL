@@ -2,11 +2,13 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Representante, Alumno
+from .models import Representante, Alumno, RegistroEliminado
 from .forms import RepresentanteForm, AlumnoForm
 from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db import transaction
+import json
 
 
 # para el login
@@ -86,11 +88,11 @@ def representante_view(request, id):
 @permission_required('repreStudy.change_representante')
 @login_required
 def representante_edit(request, id):
-    contact = Representante.objects.get(id=id)
+    representante = Representante.objects.get(id=id)
 
     # para que al darle al boton de editar nos muestre el formulario lleno y poder editarlo
     if request.method == 'GET':
-        form = RepresentanteForm(instance=contact)
+        form = RepresentanteForm(instance=representante)
         context = {
             'form' : form,
             'id' : id
@@ -99,7 +101,7 @@ def representante_edit(request, id):
 
     # para que al editarlo y darle a guardar este guarde lo editado y sustituya al anterior
     if request.method == 'POST':
-        form = RepresentanteForm(request.POST, instance=contact)
+        form = RepresentanteForm(request.POST, instance=representante)
         if form.is_valid():
             form.save()
         context = {
@@ -127,8 +129,16 @@ def representante_create(request):
         form = RepresentanteForm(request.POST)
         if form.is_valid():
             form.save()
-        messages.success(request, "Representante añadido.")
-        return redirect('representante_create')
+            messages.success(request, "Representante registrado exitosamente.")
+            return redirect('representante_create')
+    else:
+        form = RepresentanteForm()
+    
+    context = {
+        'form': form
+    }
+    return render(request, 'representante/create.html', context)
+        
     
 
 # para eliminar un representante
@@ -144,8 +154,45 @@ def representante_delete(request, id):
 def representante_confirm_delete(request, id):
     representante = get_object_or_404(Representante, id=id)
     if request.method == 'POST':
-        representante.delete()
-        messages.success(request, "Representante eliminado.")
+        # para que si hay un error en el registro no se guarde nada 
+        with transaction.atomic():
+            # Guardar el registro del representante eliminado
+            datos_representante = {
+                'id': representante.id,
+                'nombres': representante.nombres,
+                'apellidos': representante.apellidos,
+                'cedula': representante.cedula,
+                # Añade aquí todos los campos relevantes del representante
+            }
+            RegistroEliminado.objects.create(
+                tipo='representante',
+                datos=datos_representante,
+                eliminado_por=request.user
+            )
+            
+            # Guardar los registros de los alumnos asociados
+            alumnos = Alumno.objects.filter(representante=representante)
+            for alumno in alumnos:
+                datos_alumno = {
+                    'id': alumno.id,
+                    'nombres': alumno.nombres,
+                    'apellidos': alumno.apellidos,
+                    'edad': alumno.edad,
+                    'sexo': alumno.sexo,
+                    'grado_y_seccion': alumno.grado_y_seccion,
+                    'representante_cedula': alumno.representante.cedula if alumno.representante else None,
+                    # Añade aquí todos los campos relevantes del alumno
+                }
+                RegistroEliminado.objects.create(
+                    tipo='alumno',
+                    datos=datos_alumno,
+                    eliminado_por=request.user
+                )
+            
+            # Eliminar el representante (esto eliminará automáticamente los alumnos asociados)
+            representante.delete()
+        
+        messages.success(request, "Representante y sus alumnos asociados eliminados")
         return redirect('representante')
     context = {
         'representante': representante
@@ -252,8 +299,25 @@ def alumno_delete(request, id):
 def alumno_confirm_delete(request, id):
     alumno = get_object_or_404(Alumno, id=id)
     if request.method == 'POST':
+        # Guardar el registro eliminado
+        datos = {
+            'id': alumno.id,
+            'nombres': alumno.nombres,
+            'apellidos': alumno.apellidos,
+            'edad': alumno.edad,
+            'sexo': alumno.sexo,
+            'grado_y_seccion': alumno.grado_y_seccion,
+            'representante_cedula': alumno.representante.cedula if alumno.representante else None,
+            # Añade aquí todos los campos relevantes
+        }
+        RegistroEliminado.objects.create(
+            tipo='alumno',
+            datos=datos,
+            eliminado_por=request.user
+        )
+        
         alumno.delete()
-        messages.success(request, "alumno eliminado.")
+        messages.success(request, "Alumno eliminado")
         return redirect('alumno')
     context = {
         'alumno': alumno
